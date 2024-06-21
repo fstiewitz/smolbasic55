@@ -1,0 +1,4 @@
+#!/bin/sh
+
+nom=P163
+. "$srcdir"/chkout.inc

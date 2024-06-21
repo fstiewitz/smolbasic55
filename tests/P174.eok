@@ -1,0 +1,6 @@
+warning: operation raised FP exception(s) FE_INEXACT FE_OVERFLOW
+warning: division by zero
+warning: division by zero
+warning: operation raised FP exception(s) FE_INEXACT FE_OVERFLOW
+warning: operation raised FP exception(s) FE_INEXACT FE_OVERFLOW
+warning: invalid TAB argument (inf)

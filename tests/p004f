@@ -1,0 +1,5 @@
+#!/bin/sh
+
+nom=P004F
+export FLAGS=+NOEND
+. "$srcdir"/chkout.inc

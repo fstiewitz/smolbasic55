@@ -1,0 +1,2 @@
+260: error: type mismatch for variable A
+ info: it was previously used or DIM as a one-dimension array

@@ -1,0 +1,5 @@
+#!/bin/sh
+
+nom=P159F
+export FLAGS=+FULLDEF
+. "$srcdir"/chkout.inc

@@ -1,0 +1,2 @@
+warning: division by zero
+warning: operation raised FP exception(s) FE_INEXACT FE_OVERFLOW

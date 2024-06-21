@@ -1,0 +1,333 @@
+1 OPTION FLAGS +INLINE +TYPE +PTR +EXTERN
+6 DIM S(20,3), F(12,5), M(40,80)
+7 GOSUB 2000
+20 REM INITIALIZE R (ROTATION MATRIX) AND V (VIEW MATRIX)
+21 GOSUB 500
+22 FOR I = 1 TO 4
+23 FOR J = 1 TO 4
+24 LET V(I,J) = R(I, J)
+25 NEXT J
+26 NEXT I
+30 REM MAIN LOOP
+40 GOSUB 800
+50 REM EXTRACT EYE, UP AND LEFT VECTOR
+51 LET E(1) = 5 * V(1, 3)
+52 LET E(2) = 5 * V(2, 3)
+53 LET E(3) = 5 * V(3, 3)
+54 LET U(1) = V(1, 2)
+55 LET U(2) = V(2, 2)
+56 LET U(3) = V(3, 2)
+57 LET T(1) = V(1, 1)
+58 LET T(2) = V(2, 1)
+59 LET T(3) = V(3, 1)
+60 REM RASTER LOOP
+61 FOR I = 1 TO 40
+70 FOR J = 1 TO 80
+71 REM FNA CALCULATES COMPONENT-WISE PER-PIXEL LOOKAT VECTOR
+72 DEF FNA(X) = (((I - 0.5 * 40) / (0.5 * 40)) * 2 * U(X)) + (((J - 0.5 * 80) / (0.5 * 80)) * 2 * T(X))
+80 LET P(1) = FNA(1)
+81 LET P(2) = FNA(2)
+82 LET P(3) = FNA(3)
+90 GOSUB 1000
+91 LET X = X + 1
+92 LET M(I, J) = X
+93 NEXT J
+94 NEXT I
+95 PRINT "DODECAHEDRON"
+96 PRINT V(1, 1), V(1, 2), V(1, 3)
+97 PRINT V(2, 1), V(2, 2), V(2, 3)
+98 PRINT V(3, 1), V(3, 2), V(3, 3)
+99 FOR I = 1 TO 40
+100 FOR J = 1 TO 80
+101 LET X = M(I, J)
+102 ON X GOTO 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 210, 220, 230
+110 PRINT " ";
+111 GOTO 240
+120 PRINT "A";
+121 GOTO 240
+130 PRINT "B";
+131 GOTO 240
+140 PRINT "C";
+141 GOTO 240
+150 PRINT "D";
+151 GOTO 240
+160 PRINT "E";
+161 GOTO 240
+170 PRINT "F";
+171 GOTO 240
+180 PRINT "G";
+181 GOTO 240
+190 PRINT "H";
+191 GOTO 240
+200 PRINT "I";
+201 GOTO 240
+210 PRINT "J";
+211 GOTO 240
+220 PRINT "K";
+221 GOTO 240
+230 PRINT "L";
+231 GOTO 240
+240 NEXT J
+250 PRINT
+260 NEXT I
+267 REM STOP
+270 GOTO 30
+500 REM CREATE RANDOM ROTATION MATRIX
+501 FOR I = 1 TO 4
+510 FOR J = 1 TO 4
+520 LET R(I, J) = 0.01 * RND
+530 IF I <> J THEN 540
+535 LET R(I, J) = 1 + R(I, J)
+540 NEXT J
+550 NEXT I
+560 REM ORTHONORMALIZE R
+570 DEF FNL(I)=SQR(R(I, 1) * R(I, 1) + R(I, 2) * R(I, 2) + R(I, 3) * R(I, 3))
+580 LET C0 = 1
+590 GOSUB 710
+600 DEF FND=R(I0, 1) * R(J0, 1) + R(I0, 2) * R(J0, 2) + R(I0, 3) * R(J0, 3)
+610 LET I0 = 1
+611 LET J0 = 2
+612 LET D0 = FND
+620 FOR I = 1 TO 3
+630 LET R(2, I) = R(2, I) - R(1, I) * D0
+640 NEXT I
+650 LET C0 = 2
+651 GOSUB 710
+660 LET I0 = 2
+661 LET J0 = 3
+663 LET D1 = FND
+664 LET I0 = 1
+665 LET D0 = FND
+670 FOR I = 1 TO 3
+680 LET R(3, I) = R(3, I) - R(2, I) * D1 - R(1, I) * D0
+690 NEXT I
+700 LET C0 = 3
+710 LET A = FNL(C0)
+720 LET R(C0, 1) = R(C0, 1) / A
+730 LET R(C0, 2) = R(C0, 2) / A
+740 LET R(C0, 3) = R(C0, 3) / A
+750 RETURN
+800 REM MAT3MULT V = V * R
+810 FOR I = 1 TO 3
+820 FOR J = 1 TO 3
+825 LET W(I, J) = 0
+830 FOR K = 1 TO 3
+840 LET W(I, J) = W(I, J) + V(I, K) * R(K, J)
+850 NEXT K
+860 NEXT J
+870 NEXT I
+880 FOR I = 1 TO 3
+890 FOR J = 1 TO 3
+900 LET V(I, J) = W(I, J)
+910 NEXT J
+920 NEXT I
+930 RETURN
+1000 REM DODECAHEDRON MATCH
+1010 FOR I1 = 1 TO 12
+1020 GOSUB 1060
+1030 IF X = 0 THEN 1050
+1031 LET X = I1
+1040 RETURN
+1050 NEXT I1
+1051 RETURN
+1060 REM PGONMATCH
+1061 REM   - I1: POLYGON INDEX
+1062 REM   - E: EYE
+1063 REM   - D: P - EYE
+1064 REM   - S: VERTICES
+1065 REM   - F: FACES
+1067 CALL V3SUB(PTR:D(1), PTR:P(1), PTR:E(1))
+1070 LET C(1) = 0
+1071 LET C(2) = 0
+1072 LET C(3) = 0
+1080 FOR I2 = 1 TO 5
+1090 LET C(1) = C(1) + S(F(I1, I2), 1)
+1091 LET C(2) = C(2) + S(F(I1, I2), 2)
+1092 LET C(3) = C(3) + S(F(I1, I2), 3)
+1100 NEXT I2
+1101 LET C(1) = C(1) / 5
+1102 LET C(2) = C(2) / 5
+1103 LET C(3) = C(3) / 5
+1110 CALL V3NORM(PTR(N(1)), PTR(C(1)))
+1120 CALL V3SUB(PTR:H(1), PTR:E(1), PTR:C(1))
+1130 CALL V3NORM(PTR(G(1)), PTR(H(1)))
+1140 LET R0 = G(1) * N(1) + G(2) * N(2) + G(3) * N(3)
+1150 IF R0 >= 0 THEN 1160
+1155 LET X = 0
+1156 RETURN
+1160 LET H(1) = -H(1)
+1161 LET H(2) = -H(2)
+1162 LET H(3) = -H(3)
+1170 LET R0 = D(1) * N(1) + D(2) * N(2) + D(3) * N(3)
+1180 LET D0 = (H(1) * N(1) + H(2) * N(2) + H(3) * N(3)) / R0
+1190 FOR I2 = 1 TO 3
+1200 LET L(I2) = E(I2) + D0 * D(I2)
+1210 NEXT I2
+1215 DEF FNP(X) = X * X
+1220 LET D1 = FNP(C(1) - L(1)) + FNP(C(2) - L(2)) + FNP(C(3) - L(3))
+1225 REM EARLY EXIT (OUTSIDE OF VERTEX CIRCLE)
+1230 IF D1 > R8 THEN 1155
+1235 REM EARLY EXIT (INSIDE OF TANGENT CIRCLE)
+1240 IF D1 > R9 THEN 1250
+1241 LET X = 1
+1242 RETURN
+1250 REM IS POINT INSIDE OF REGULAR N-GON
+1251 REM FIND 2 CLOSEST VERTICES
+1260 LET D1 = 9999999E99
+1270 FOR I2 = 1 TO 5
+1280 DEF FNB(X) = FNP(S(F(I1, I2), X) - L(X))
+1281 LET D0 = FNB(1) + FNB(2) + FNB(3)
+1290 IF D0 > D1 THEN 1300
+1291 LET D1 = D0
+1292 LET I3 = I2
+1300 NEXT I2
+1310 LET Y(1) = S(F(I1, I3), 1)
+1311 LET Y(2) = S(F(I1, I3), 2)
+1312 LET Y(3) = S(F(I1, I3), 3)
+1320 LET D1 = 999999E99
+1330 FOR I2 = 1 TO 5
+1340 IF I2 = I3 THEN 1400
+1350 LET D0 = FNB(1) + FNB(2) + FNB(3)
+1360 IF D0 > D1 THEN 1400
+1370 LET D1 = D0
+1380 LET I4 = I2
+1400 NEXT I2
+1410 LET Z(1) = S(F(I1, I4), 1)
+1411 LET Z(2) = S(F(I1, I4), 2)
+1412 LET Z(3) = S(F(I1, I4), 3)
+1420 CALL V3SUB(PTR(H(1)), PTR(Y(1)), PTR(Z(1)))
+1430 LET G(1) = H(2) * N(3) - H(3) * N(2)
+1431 LET G(2) = H(3) * N(1) - H(1) * N(3)
+1432 LET G(3) = H(1) * N(2) - H(2) * N(1)
+1435 CALL V3NORM(PTR(G(1)), PTR(G(1)))
+1440 CALL V3SUB(PTR:Z(1), PTR:C(1), PTR:Y(1))
+1445 CALL V3NORM(PTR(Z(1)), PTR(Z(1)))
+1450 LET D0 = SGN(V3DOT(PTR(G(1)), PTR(Z(1))))
+1460 CALL V3SUB(PTR:Z(1), PTR:L(1), PTR:Y(1))
+1465 CALL V3NORM(PTR(Z(1)), PTR(Z(1)))
+1470 LET R0 = SGN(V3DOT(PTR(G(1)), PTR(Z(1))))
+1480 IF D0 = 0 THEN 1155
+1481 IF R0 = 0 THEN 1155
+1482 IF D0 <> R0 THEN 1155
+1485 LET X = 1
+1486 RETURN
+2000 REM INITIALIZE DODECAHEDRON DATA
+2100 FOR I = 1 TO 20
+2101 READ S(I,1), S(I, 2), S(I, 3)
+2102 NEXT I
+2110 FOR I = 1 TO 12
+2111 READ F(I, 1), F(I, 2), F(I, 3), F(I, 4), F(I, 5)
+2112 NEXT I
+2120 LET R8 = 1.105700679
+2121 LET R9 = 0.72360679
+2130 RETURN
+2200 DATA 1, 1, -1
+2201 DATA 1, -1, -1
+2202 DATA 1, 1, 1
+2203 DATA 1, -1, 1
+2204 DATA -1, 1, -1
+2205 DATA -1, -1, -1
+2206 DATA -1, 1, 1
+2207 DATA -1, -1, 1
+2208 DATA 0.618033988, 0.00000, -1.618033988
+2209 DATA -0.618033988, 0.00000, -1.618033988
+2210 DATA 0.618033988, 0.00000, 1.618033988
+2211 DATA -0.618033988, 0.00000, 1.618033988
+2212 DATA 1.618033988, 0.618033988, 0.00000
+2213 DATA 1.618033988, -0.618033988, 0.00000
+2214 DATA -1.618033988, 0.618033988, 0.00000
+2215 DATA -1.618033988, -0.618033988, 0.00000
+2216 DATA 0.00000, 1.618033988, -0.618033988
+2217 DATA 0.00000, 1.618033988, 0.618033988
+2218 DATA 0.00000, -1.618033988, -0.618033988
+2219 DATA 0.00000, -1.618033988, 0.618033988
+2220 DATA 6, 16, 15, 5, 10
+2221 DATA 17, 18, 3, 13, 1
+2222 DATA 16, 6, 19, 20, 8
+2223 DATA 20, 4, 11, 12, 8
+2224 DATA 12, 7, 15, 16, 8
+2225 DATA 2, 19, 6, 10, 9
+2226 DATA 5, 15, 7, 18, 17
+2227 DATA 3, 11, 4, 14, 13
+2228 DATA 20, 19, 2, 14, 4
+2229 DATA 9, 10, 5, 17, 1
+2230 DATA 13, 14, 2, 9, 1
+2231 DATA 12, 11, 3, 18, 7
+3000 END
+#ifdef __amd64
+V3SUB__ppp:
+    vmovupd 0(%rsi), %ymm0
+    vmovupd 0(%rdx), %ymm1
+    vsubpd %ymm1, %ymm0, %ymm0
+    vmovupd %ymm0, 0(%rdi)
+    retq
+V3NORM__pp:
+    vmovupd 0(%rsi), %ymm0
+    vmulpd %ymm0, %ymm0, %ymm1
+    vhaddpd %ymm1, %ymm1, %ymm1
+    vmovupd %ymm1, 0(%rdi)
+    movq 0(%rdi), %xmm2
+    movq 16(%rdi), %xmm3
+    addsd %xmm2, %xmm3
+    movq %xmm3, 0(%rdi)
+    vbroadcastsd 0(%rdi), %ymm1
+    vsqrtpd %ymm1, %ymm1
+    vdivpd %ymm1, %ymm0, %ymm0
+    vmovupd %ymm0, 0(%rdi)
+    retq
+V3DOT__pp:
+    vmovupd 0(%rdi), %ymm0
+    vmovupd 0(%rsi), %ymm1
+    vmulpd %ymm0, %ymm1, %ymm1
+    vhaddpd %ymm1, %ymm1, %ymm1
+    vpermpd $8, %ymm1, %ymm1
+    vhaddpd %ymm1, %ymm1, %ymm1
+    movq %xmm1, %xmm0
+    retq
+#elifdef __riscv
+V3SUB__ppp:
+    li a3, 16
+    .C0:
+    add a4, a3, a1
+    add a5, a3, a2
+    add a6, a3, a0
+    fld fa0, 0(a4)
+    fld fa1, 0(a5)
+    fsub.d fa0, fa0, fa1
+    fsd fa0, 0(a6)
+    addi a3, a3, -8
+    bgez a3, .C0
+    ret
+V3NORM__pp:
+    fld fa0, 0(a1)
+    fld fa1, 8(a1)
+    fld fa2, 16(a1)
+    fmul.d fa3, fa0, fa0
+    fmul.d fa4, fa1, fa1
+    fmul.d fa5, fa2, fa2
+    fadd.d fa3, fa3, fa4
+    fadd.d fa3, fa3, fa5
+    fsqrt.d fa3, fa3
+    fdiv.d fa0, fa0, fa3
+    fdiv.d fa1, fa1, fa3
+    fdiv.d fa2, fa2, fa3
+    fsd fa0, 0(a0)
+    fsd fa1, 8(a0)
+    fsd fa2, 16(a0)
+    ret
+V3DOT__pp:
+    fld fa0, 0(a0)
+    fld fa1, 8(a0)
+    fld fa2, 16(a0)
+    fld fa3, 0(a1)
+    fld fa4, 8(a1)
+    fld fa5, 16(a1)
+    fmul.d fa0, fa0, fa3
+    fmul.d fa1, fa1, fa4
+    fmul.d fa2, fa2, fa5
+    fadd.d fa0, fa0, fa1
+    fadd.d fa0, fa0, fa2
+    ret
+#else
+#error "unsupported architecture"
+#endif

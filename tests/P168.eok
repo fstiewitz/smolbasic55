@@ -1,0 +1,2 @@
+warning: operation raised FP exception(s) FE_INEXACT FE_OVERFLOW
+invalid array access: 9223372036854775807 to array of dim (10)

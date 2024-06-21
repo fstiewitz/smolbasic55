@@ -1,0 +1,2 @@
+warning: operation raised FP exception(s) FE_INEXACT FE_OVERFLOW
+warning: operation raised FP exception(s) FE_INEXACT FE_UNDERFLOW
